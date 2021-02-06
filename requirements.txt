@@ -1,1 +1,1 @@
-omxplayer-wrapper==0.3.3
+python-vlc==3.0.11115
