@@ -46,7 +46,7 @@ class RemoteControlSocket():
 
     async def produce(self):
         await asyncio.sleep(1)
-        return json.dumps({'playing': self.player.is_playing(), 'station': self.player.current_station_name, 'volume': self.player.volume, 'connections': len(connected)})
+        return json.dumps({'playing': self.player.is_playing(), 'station': self.player.current_station_name, 'volume': self.player.volume, 'connections': len(self.connected)})
 
     def serve(self, *args, **kwargs):
         return websockets.serve(self.handler, *args, **kwargs)
