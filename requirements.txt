@@ -1,1 +1,2 @@
 python-vlc==3.0.11115
+websockets==8.1
