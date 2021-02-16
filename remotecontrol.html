@@ -14,10 +14,8 @@
     </fieldset>
     <fieldset>
       <legend>Volume</legend>
-      <input id="volume" readonly="readonly" value="?"></input>
-      <button onclick="websocket.send('vol+')">+</button>
-      <button onclick="websocket.send('vol-')">-</button>
-      <!--<input type="range" id="volume" min="0" max="100"></input>-->
+      <input id="volume-label" readonly="readonly" value="?"></input>
+      <input type="range" id="volume" min="0" max="100" oninput="websocket.send('volume ' + this.value)"></input>
     </fieldset>
     <fieldset>
       <legend>Station</legend>
@@ -48,6 +46,7 @@
         data = JSON.parse(event.data);
         document.getElementById("playing").value = data.playing;
         document.getElementById("volume").value = data.volume;
+        document.getElementById("volume-label").value = data.volume;
         document.getElementById("station").value = data.station;
         document.getElementById("connection-count").value = data.connections;
       }

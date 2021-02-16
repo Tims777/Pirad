@@ -24,11 +24,8 @@ class RadioPlayer():
     def is_playing(self):
         return self.vlc_player.is_playing()
 
-    def volume_inc(self):
-        return self.vlc_player.audio_set_volume(self.vlc_player.audio_get_volume() + 5)
-
-    def volume_dec(self):
-        return self.vlc_player.audio_set_volume(self.vlc_player.audio_get_volume() - 5)
+    def set_volume(self, value):
+        return self.vlc_player.audio_set_volume(value)
 
     current_station_id = 0
 

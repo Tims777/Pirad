@@ -38,18 +38,21 @@ class RemoteControlSocket():
             await websocket.send(message)
 
     async def consume(self, message):
-        if message == 'next':
+        command, *args = message.split()
+        if command == 'next':
             self.player.next_station()
-        elif message == 'play':
+        elif command == 'play':
             self.player.play()
-        elif message == 'pause':
+        elif command == 'pause':
             self.player.pause()
-        elif message == 'stop':
+        elif command == 'stop':
             self.player.stop()
-        elif message == 'vol+':
-            self.player.volume_inc()
-        elif message == 'vol-':
-            self.player.volume_dec()
+        elif command == 'volume':
+            try:
+                volume = int(args[0])
+            except (IndexError, ValueError):
+                return
+            self.player.set_volume(volume)
         elif message == 'shutdown':
             self.player.stop()
             if sys.platform.startswith('linux'):
