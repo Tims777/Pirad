@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Pirad</title>
+  </head>
+  <body>
+    <fieldset>
+      <legend>Playback</legend>
+      <input id="playing" readonly="readonly" value="?"></input>
+      <button onclick="websocket.send('play')">Play</button>
+      <button onclick="websocket.send('pause')">Pause</button>
+      <button onclick="websocket.send('stop')">Stop</button>
+    </fieldset>
+    <fieldset>
+      <legend>Volume</legend>
+      <input id="volume" readonly="readonly" value="?"></input>
+      <button onclick="websocket.send('vol+')">+</button>
+      <button onclick="websocket.send('vol-')">-</button>
+      <!--<input type="range" id="volume" min="0" max="100"></input>-->
+    </fieldset>
+    <fieldset>
+      <legend>Station</legend>
+      <input id="station" readonly="readonly" value="?"></input>
+      <button onclick="websocket.send('next')">Next</button>
+    </fieldset>
+    <fieldset>
+      <legend>Connection</legend>
+      <input id="connection-state" readonly="readonly" value="Disconnected"></input>
+      <button onclick="reconnect()">(Re)Connect</button>
+      <button onclick="disconnect()">Disconnect</button>
+      <input id="connection-count" readonly="readonly" value="?"></input>
+    </fieldset>
+    <fieldset>
+      <legend>System</legend>
+      <select id="sounddevice" type="dropdown"></select>
+      <button onclick="websocket.send('shutdown')">Shutdown</button>
+    </fieldset>
+    <script>
+
+      function log(txt) {
+        document.getElementById("connection-state").value = txt;
+        console.log(txt);
+      }
+
+      function messageReceived(event) {
+        data = JSON.parse(event.data);
+        document.getElementById("playing").value = data.playing;
+        document.getElementById("volume").value = data.volume;
+        document.getElementById("station").value = data.station;
+        document.getElementById("connection-count").value = data.connections;
+      }
+
+      function connectionOpened(event) {
+        log("Connected");
+      }
+
+      function connectionClosed(event) {
+        if (!event.wasClean) {
+          log("Connection lost");
+          setTimeout(reconnect, 1000);
+        } else if (window.websocket == null) {
+          log("Disconnected");
+        }
+      }
+
+      function connect() {
+        if (window.websocket != null) {
+          return;
+        }
+        log("Connecting...");
+        window.websocket = new WebSocket("ws://192.168.0.8:7777");
+        window.websocket.onmessage = messageReceived;
+        window.websocket.onopen = connectionOpened;
+        window.websocket.onclose = connectionClosed;
+      }
+
+      function disconnect() {
+        if (window.websocket == null) {
+          return;
+        }
+        log("Disconnecting...");
+        window.websocket.close();
+        window.websocket = null;
+        document.getElementById("playing").value = "?";
+        document.getElementById("volume").value = "?";
+        document.getElementById("station").value = "?";
+        document.getElementById("connection-count").value = "?";
+      }
+
+      function reconnect() {
+        disconnect();
+        connect();
+      }
+
+      connect();
+    </script>
+  </body>
+</html>
