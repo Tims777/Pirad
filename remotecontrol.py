@@ -15,6 +15,8 @@ class RemoteControlSocket():
     async def handler(self, websocket, path):
         self.connected.add(websocket)
         try:
+            message = await self.produce()
+            await websocket.send(message)
             consumer_task = asyncio.ensure_future(self.consumer_handler(websocket, path))
             producer_task = asyncio.ensure_future(self.producer_handler(websocket, path))
             done, pending = await asyncio.wait([consumer_task, producer_task], return_when=asyncio.FIRST_COMPLETED)
@@ -29,6 +31,7 @@ class RemoteControlSocket():
 
     async def producer_handler(self, websocket, path):
         while True:
+            await asyncio.sleep(1)
             message = await self.produce()
             await websocket.send(message)
 
@@ -45,7 +48,6 @@ class RemoteControlSocket():
             self.player.volume_dec()
 
     async def produce(self):
-        await asyncio.sleep(1)
         return json.dumps({'playing': self.player.is_playing(), 'station': self.player.current_station_name, 'volume': self.player.volume, 'connections': len(self.connected)})
 
     def serve(self, *args, **kwargs):
