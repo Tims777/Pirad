@@ -5,8 +5,10 @@ import asyncio
 from player import RadioPlayer
 from remotecontrol import RemoteControlSocket
 
-
-origins = ['http://192.168.0.77']
+# list of acceptable origins
+# * this is only to prevent xss-attacks (and does not diallow connections with a "faked" origin)
+# * 'null' is sent by firefox instead of 'file://'
+origins = ['http://192.168.0.77', 'file://', 'null']  # null is sent for local files opened in the browser
 
 
 if __name__ == '__main__':
