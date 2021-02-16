@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import os
+import sys
 import asyncio
 import json
 import websockets
@@ -42,10 +44,20 @@ class RemoteControlSocket():
             self.player.play()
         elif message == 'pause':
             self.player.pause()
+        elif message == 'stop':
+            self.player.stop()
         elif message == 'vol+':
             self.player.volume_inc()
         elif message == 'vol-':
             self.player.volume_dec()
+        elif message == 'shutdown':
+            self.player.stop()
+            if sys.platform.startswith('linux'):
+                os.system('shutdown -r now')  # requires 'chmod 4755 /sbin/shutdown'
+            elif sys.platform.startswith('win'):
+                os.system('shutdown -s -t 0')
+            else:
+                pass  # not supported
 
     async def produce(self):
         return json.dumps({'playing': self.player.is_playing(), 'station': self.player.current_station_name, 'volume': self.player.volume, 'connections': len(self.connected)})

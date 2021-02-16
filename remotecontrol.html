@@ -33,10 +33,11 @@
     </fieldset>
     <fieldset>
       <legend>System</legend>
-      <select id="sounddevice" type="dropdown"></select>
+      <!--<select id="sounddevice" type="dropdown"></select>-->
       <button onclick="websocket.send('shutdown')">Shutdown</button>
     </fieldset>
     <script>
+      url = "ws://192.168.0.77:7777";
 
       function log(txt) {
         document.getElementById("connection-state").value = txt;
@@ -69,7 +70,7 @@
           return;
         }
         log("Connecting...");
-        window.websocket = new WebSocket("ws://192.168.0.8:7777");
+        window.websocket = new WebSocket(url);
         window.websocket.onmessage = messageReceived;
         window.websocket.onopen = connectionOpened;
         window.websocket.onclose = connectionClosed;
