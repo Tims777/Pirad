@@ -39,6 +39,7 @@ class RemoteControlSocket():
 
     async def consume(self, message):
         command, *args = message.split()
+        print(command, args)
         if command == 'next':
             self.player.next_station()
         elif command == 'play':
@@ -47,6 +48,18 @@ class RemoteControlSocket():
             self.player.pause()
         elif command == 'stop':
             self.player.stop()
+        elif command == 'station':
+            try:
+                station_id = int(args[0])
+            except (IndexError, ValueError):
+                return
+            self.player.switch_station(station_id)
+        elif command == 'audiodevice':
+            available = self.player.available_audio_devices
+            if len(args) == 0 and '' in available.keys():
+                self.player.switch_audio_device('')
+            elif args[0] in available.keys():
+                self.player.switch_audio_device(args[0])
         elif command == 'volume':
             try:
                 volume = int(args[0])
@@ -63,7 +76,14 @@ class RemoteControlSocket():
                 pass  # not supported
 
     async def produce(self):
-        return json.dumps({'playing': self.player.is_playing(), 'station': self.player.current_station_name, 'volume': self.player.volume, 'connections': len(self.connected)})
+        return json.dumps(
+            {'playing': self.player.is_playing(),
+            'station': self.player.current_station_id,
+            'stations': self.player.available_stations,
+            'volume': self.player.volume,
+            'audiodevice': self.player.current_audio_device,
+            'connections': len(self.connected),
+            'audiodevices': self.player.available_audio_devices})
 
     def serve(self, *args, **kwargs):
         return websockets.serve(self.handler, *args, **kwargs)

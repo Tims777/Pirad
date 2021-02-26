@@ -7,7 +7,7 @@
   <body>
     <fieldset>
       <legend>Playback</legend>
-      <input id="playing" readonly="readonly" value="?"></input>
+      <input id="playing" readonly="readonly"></input>
       <button onclick="websocket.send('play')">Play</button>
       <button onclick="websocket.send('pause')">Pause</button>
       <button onclick="websocket.send('stop')">Stop</button>
@@ -19,7 +19,7 @@
     </fieldset>
     <fieldset>
       <legend>Station</legend>
-      <input id="station" readonly="readonly" value="?"></input>
+      <select id="station" type="dropdown" oninput="websocket.send('station ' + this.value)"></select>
       <button onclick="websocket.send('next')">Next</button>
     </fieldset>
     <fieldset>
@@ -27,19 +27,40 @@
       <input id="connection-state" readonly="readonly" value="Disconnected"></input>
       <button onclick="reconnect()">(Re)Connect</button>
       <button onclick="disconnect()">Disconnect</button>
-      <input id="connection-count" readonly="readonly" value="?"></input>
+      <input id="connection-count" readonly="readonly"></input>
     </fieldset>
     <fieldset>
       <legend>System</legend>
-      <!--<select id="sounddevice" type="dropdown"></select>-->
+      <select id="audiodevice" type="dropdown" oninput="websocket.send('audiodevice ' + this.value)"></select>
       <button onclick="websocket.send('shutdown')">Shutdown</button>
     </fieldset>
     <script>
-      url = "ws://192.168.0.77:7777";
+      url = "ws://192.168.0.8:7777";
+
+      HTMLSelectElement.prototype.optionValues = function() {
+        var values = [];
+        for (var i = 0, l = this.options.length; i < l; i++) {
+          values = values.concat(this.options[i].value);
+        }
+        return values;
+      }
 
       function log(txt) {
         document.getElementById("connection-state").value = txt;
         console.log(txt);
+      }
+
+      function updateOptions(select, newOptions) {
+        if (newOptions == null) return;
+
+        var currentKeys = select.optionValues();
+        var newKeys = Object.keys(newOptions);
+
+        var noLongerPresent = currentKeys.filter(x => newKeys.indexOf(x) == -1);
+        var newlyAdded = newKeys.filter(x => currentKeys.indexOf(x) == -1);
+
+        noLongerPresent.forEach(key => select.options.remove(key));
+        newlyAdded.forEach(key => select.options.add(new Option(newOptions[key], key)));
       }
 
       function messageReceived(event) {
@@ -48,7 +69,10 @@
         document.getElementById("volume").value = data.volume;
         document.getElementById("volume-label").value = data.volume;
         document.getElementById("station").value = data.station;
+        document.getElementById("audiodevice").value = data.audiodevice;
         document.getElementById("connection-count").value = data.connections;
+        updateOptions(document.getElementById("audiodevice"), data.audiodevices);
+        updateOptions(document.getElementById("station"), data.stations);
       }
 
       function connectionOpened(event) {
@@ -83,9 +107,13 @@
         window.websocket.close();
         window.websocket = null;
         document.getElementById("playing").value = "?";
-        document.getElementById("volume").value = "?";
-        document.getElementById("station").value = "?";
+        document.getElementById("volume-label").value = "?";
+        document.getElementById("station").options.length = 0;
+        document.getElementById("audiodevice").options.length = 0;
+        document.getElementById("station").options.add(new Option('?'));
+        document.getElementById("audiodevice").options.add(new Option('?'));
         document.getElementById("connection-count").value = "?";
+
       }
 
       function reconnect() {

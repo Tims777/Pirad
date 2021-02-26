@@ -3,8 +3,12 @@ import vlc
 class RadioPlayer():
 
     stations = [
-        ('SWR1', 'https://swr-swr1-bw.cast.addradio.de/swr/swr1/bw/aac/96/stream.aac'),
-        ('SWR3', 'https://swr-swr3-live.cast.addradio.de/swr/swr3/live/aac/96/stream.aac')
+        {'name': 'SWR1', 'url': 'https://swr-swr1-bw.cast.addradio.de/swr/swr1/bw/aac/96/stream.aac'},
+        {'name': 'SWR3', 'url': 'https://swr-swr3-live.cast.addradio.de/swr/swr3/live/aac/96/stream.aac'},
+        {'name': 'Antenne 1', 'url': 'https://antenne1.api.radiosphere.io/channels/antenne1-stuttgart/stream.mp3?quality=4'},
+        {'name': 'Die neue Welle', 'url': 'https://dieneuewelle.cast.addradio.de/dieneuewelle/simulcast/high/stream.mp3'},
+        {'name': 'Radio Ton', 'url': 'https://live.radioton.de/rt-live-bw'},
+        {'name': 'bigFM', 'url': 'https://streams.bigfm.de/bigfm-deutschland-128-mp3'}
     ]
 
     def __init__(self):
@@ -30,16 +34,43 @@ class RadioPlayer():
     current_station_id = 0
 
     @property
-    def current_station_name(self):
-        return self.stations[self.current_station_id][0]
-
-    @property
-    def current_station_url(self):
-        return self.stations[self.current_station_id][1]
+    def current_station(self):
+        return self.stations[self.current_station_id]
 
     @property
     def volume(self):
         return self.vlc_player.audio_get_volume()
+
+    @property
+    def current_audio_device(self):
+        dev = self.vlc_player.audio_output_device_get()
+        if dev == None: dev = ''
+        return dev
+
+    @property
+    def available_audio_devices(self):
+        output_devices = {}
+        mods = self.vlc_player.audio_output_device_enum()
+        if mods:
+            mod = mods
+            while mod:
+                mod = mod.contents
+                output_devices[mod.device.decode('utf-8')] = mod.description.decode('utf-8')
+                mod = mod.next
+        vlc.libvlc_audio_output_device_list_release(mods)
+        return output_devices
+
+    @property
+    def available_stations(self):
+        return {id: self.stations[id]['name'] for id in range(len(self.stations))}
+
+    def switch_station(self, station_id):
+        self.current_station_id = station_id
+        self.reload_station()
+        self.play()
+
+    def switch_audio_device(self, device_id):
+        self.vlc_player.audio_output_device_set(None, device_id)
 
     def next_station(self):
         self.current_station_id += 1
@@ -48,5 +79,5 @@ class RadioPlayer():
         self.play()
 
     def reload_station(self):
-        media = self.vlc_instance.media_new(self.current_station_url)
+        media = self.vlc_instance.media_new(self.current_station['url'])
         self.vlc_player.set_media(media)
