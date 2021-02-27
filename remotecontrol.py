@@ -69,7 +69,7 @@ class RemoteControlSocket():
         elif message == 'shutdown':
             self.player.stop()
             if sys.platform.startswith('linux'):
-                os.system('shutdown -r now')  # requires 'chmod 4755 /sbin/shutdown'
+                os.system('shutdown -h now')  # requires 'chmod 4755 /sbin/shutdown'
             elif sys.platform.startswith('win'):
                 os.system('shutdown -s -t 0')
             else:
