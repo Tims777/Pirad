@@ -15,12 +15,15 @@
     <fieldset>
       <legend>Volume</legend>
       <input id="volume-label" readonly="readonly" value="?"></input>
-      <input type="range" id="volume" min="0" max="100" oninput="websocket.send('volume ' + this.value)"></input>
+      <button onclick="websocket.send('volume - 5')">-</button>
+      <input type="range" id="volume" min="0" max="100" oninput="websocket.send('volume = ' + this.value)"></input>
+      <button onclick="websocket.send('volume + 5')">+</button>
     </fieldset>
     <fieldset>
       <legend>Station</legend>
-      <select id="station" type="dropdown" oninput="websocket.send('station ' + this.value)"></select>
-      <button onclick="websocket.send('next')">Next</button>
+      <select id="station" type="dropdown" oninput="websocket.send('station = ' + this.value)"></select>
+      <button onclick="websocket.send('station - 1')">Previous</button>
+      <button onclick="websocket.send('station + 1')">Next</button>
     </fieldset>
     <fieldset>
       <legend>Connection</legend>

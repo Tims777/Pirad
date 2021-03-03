@@ -6,6 +6,8 @@ import asyncio
 import json
 import websockets
 
+from utils import parse_change
+
 
 class RemoteControlSocket():
 
@@ -40,9 +42,7 @@ class RemoteControlSocket():
     async def consume(self, message):
         command, *args = message.split()
         print(command, args)
-        if command == 'next':
-            self.player.next_station()
-        elif command == 'play':
+        if command == 'play':
             self.player.play()
         elif command == 'pause':
             self.player.pause()
@@ -50,10 +50,10 @@ class RemoteControlSocket():
             self.player.stop()
         elif command == 'station':
             try:
-                station_id = int(args[0])
+                relative, difference = parse_change(args)
+                self.player.switch_station(relative * self.player.current_station_id + difference)
             except (IndexError, ValueError):
                 return
-            self.player.switch_station(station_id)
         elif command == 'audiodevice':
             available = self.player.available_audio_devices
             if len(args) == 0 and '' in available.keys():
@@ -62,10 +62,10 @@ class RemoteControlSocket():
                 self.player.switch_audio_device(args[0])
         elif command == 'volume':
             try:
-                volume = int(args[0])
+                relative, difference = parse_change(args)
+                self.player.set_volume(relative * self.player.volume + difference)
             except (IndexError, ValueError):
                 return
-            self.player.set_volume(volume)
         elif message == 'shutdown':
             self.player.stop()
             if sys.platform.startswith('linux'):

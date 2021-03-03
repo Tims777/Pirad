@@ -1,4 +1,6 @@
 import vlc
+from utils import clamp
+
 
 class RadioPlayer():
 
@@ -26,7 +28,7 @@ class RadioPlayer():
         self.vlc_player.stop()
 
     def set_volume(self, value):
-        return self.vlc_player.audio_set_volume(value)
+        self.vlc_player.audio_set_volume(clamp(value, 0, 100))
 
     current_station_id = 0
 
@@ -41,7 +43,7 @@ class RadioPlayer():
     @property
     def current_audio_device(self):
         dev = self.vlc_player.audio_output_device_get()
-        if dev == None: dev = ''
+        if dev is None: dev = ''
         return dev
 
     @property
@@ -75,18 +77,12 @@ class RadioPlayer():
         return {id: self.stations[id]['name'] for id in range(len(self.stations))}
 
     def switch_station(self, station_id):
-        self.current_station_id = station_id
+        self.current_station_id = station_id % len(self.stations)
         self.reload_station()
         self.play()
 
     def switch_audio_device(self, device_id):
         self.vlc_player.audio_output_device_set(None, device_id)
-
-    def next_station(self):
-        self.current_station_id += 1
-        self.current_station_id %= len(self.stations)
-        self.reload_station()
-        self.play()
 
     def reload_station(self):
         media = self.vlc_instance.media_new(self.current_station['url'])
