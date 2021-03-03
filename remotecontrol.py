@@ -77,7 +77,8 @@ class RemoteControlSocket():
 
     async def produce(self):
         return json.dumps(
-            {'playing': self.player.is_playing(),
+            {'playing': self.player.currently_playing,
+            'is_playing': self.player.is_playing,
             'station': self.player.current_station_id,
             'stations': self.player.available_stations,
             'volume': self.player.volume,

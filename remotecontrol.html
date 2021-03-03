@@ -7,7 +7,7 @@
   <body>
     <fieldset>
       <legend>Playback</legend>
-      <input id="playing" readonly="readonly"></input>
+      <input id="playing" readonly="readonly" size="60"></input>
       <button onclick="websocket.send('play')">Play</button>
       <button onclick="websocket.send('pause')">Pause</button>
       <button onclick="websocket.send('stop')">Stop</button>

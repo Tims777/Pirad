@@ -3,12 +3,12 @@ import vlc
 class RadioPlayer():
 
     stations = [
-        {'name': 'SWR1', 'url': 'https://swr-swr1-bw.cast.addradio.de/swr/swr1/bw/aac/96/stream.aac'},
-        {'name': 'SWR3', 'url': 'https://swr-swr3-live.cast.addradio.de/swr/swr3/live/aac/96/stream.aac'},
-        {'name': 'Antenne 1', 'url': 'https://antenne1.api.radiosphere.io/channels/antenne1-stuttgart/stream.mp3?quality=4'},
-        {'name': 'Die neue Welle', 'url': 'https://dieneuewelle.cast.addradio.de/dieneuewelle/simulcast/high/stream.mp3'},
-        {'name': 'Radio Ton', 'url': 'https://live.radioton.de/rt-live-bw'},
-        {'name': 'bigFM', 'url': 'https://streams.bigfm.de/bigfm-deutschland-128-mp3'}
+        {'name': 'SWR1', 'url': 'http://swr-swr1-bw.cast.addradio.de/swr/swr1/bw/aac/96/stream.aac'},
+        {'name': 'SWR3', 'url': 'http://swr-swr3-live.cast.addradio.de/swr/swr3/live/aac/96/stream.aac'},
+        {'name': 'Die neue Welle', 'url': 'http://dieneuewelle.cast.addradio.de/dieneuewelle/simulcast/high/stream.mp3'},
+        {'name': 'Antenne 1', 'url': 'http://stream.antenne1.de/a1stg/livestream2.mp3'},
+        {'name': 'Radio Ton', 'url': 'http://live.radioton.de/rt-live-bw'},
+        {'name': 'bigFM', 'url': 'http://streams.bigfm.de/bigfm-deutschland-128-mp3'}
     ]
 
     def __init__(self):
@@ -24,9 +24,6 @@ class RadioPlayer():
 
     def stop(self):
         self.vlc_player.stop()
-
-    def is_playing(self):
-        return self.vlc_player.is_playing()
 
     def set_volume(self, value):
         return self.vlc_player.audio_set_volume(value)
@@ -46,6 +43,19 @@ class RadioPlayer():
         dev = self.vlc_player.audio_output_device_get()
         if dev == None: dev = ''
         return dev
+
+    @property
+    def currently_playing(self):
+        media = self.vlc_player.get_media()
+        metadata = media.get_meta(vlc.Meta.NowPlaying)
+        if metadata and self.is_playing:
+            return metadata
+        else:
+            return self.is_playing
+
+    @property
+    def is_playing(self):
+        return self.vlc_player.is_playing()
 
     @property
     def available_audio_devices(self):
