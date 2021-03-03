@@ -43,8 +43,7 @@ class RadioPlayer():
     @property
     def current_audio_device(self):
         dev = self.vlc_player.audio_output_device_get()
-        if dev is None: dev = ''
-        return dev
+        return '' if dev is None else dev
 
     @property
     def currently_playing(self):
