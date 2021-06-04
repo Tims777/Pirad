@@ -1,4 +1,4 @@
 # Pirad
-A minimal internet radio for RaspberryPi
+A minimalistic internet radio for RaspberryPi
 
 ![Pirad](./logo.svg)
