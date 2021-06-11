@@ -38,7 +38,7 @@
       <button onclick="websocket.send('shutdown')">Shutdown</button>
     </fieldset>
     <script>
-      url = "ws://192.168.0.77:7777";
+      url = `ws://${window.location.host}:7777`;
 
       HTMLSelectElement.prototype.optionValues = function() {
         var values = [];
